@@ -1,135 +1,139 @@
 ---
-name: skill-auditor
-description: Audits skills, agents, plugins, and hooks for security and optimization. Use when installing new components, reviewing external code, or optimizing existing skills. Checks for unsafe patterns, validates structure, recommends improvements based on Anthropic best practices.
+name: component-hardener
+description: Hardens Claude Code components (skills, agents, hooks, plugins) for security and performance. Actively restructures to match best practices. Use when installing external components, optimizing existing ones, or ensuring structural compliance.
 ---
 
-# Skill auditor
+# Component hardener
 
-Security audit and optimization for Claude Code components before installation or to improve existing ones.
+Makes Claude Code components **safe** and **performant**. Actively restructures components to match best practices — not just auditing, but fixing.
 
 **Usage:**
-- `/skill-auditor [path]` - Full audit (security + optimization)
-- `/skill-auditor [path] --security-only` - Security scan only
-- `/skill-auditor [path] --optimize-only` - Optimization analysis only
-- `/skill-auditor --all` - Batch audit all installed components
+- `/component-hardener [path]` - Harden component (fix + report)
+- `/component-hardener [path] --audit-only` - Report without modifying
+- `/component-hardener --all` - Harden all installed components
+- `/component-hardener --batch [type]` - Harden all of one type (skill/agent/hook)
 
 ## When to use
 
-**ALWAYS run this skill when:**
+**ALWAYS run when:**
 - Installing anything from external sources
-- User points you to a new skill/agent/plugin/hook
-- Adding a new marketplace
-- Reviewing components you haven't audited before
-- Optimizing existing components for performance
+- User points to a new component
+- Optimizing existing components
+- Checking structural compliance
 
-## Risk levels by type
+**NEVER skip for:**
+- Hooks (critical risk - auto-execute)
+- Agents (high risk - autonomous)
+- Plugins (bundle multiple components)
 
-| Type | Risk | Why |
-|------|------|-----|
-| Skills | Medium | User-invoked, transparent |
-| Agents | High | Autonomous, can take actions |
-| Plugins | High | Bundle multiple components |
-| Hooks | **Critical** | Auto-execute without confirmation |
+## What it does
 
-## Audit workflow
+### Security hardening
+Scans for dangerous patterns and blocks unsafe components. See [checklists/security.md](checklists/security.md).
 
-### Phase 1: Security scan
+- 🔴 CRITICAL: Blocks installation (eval, exec, network exfiltration)
+- 🟡 WARNING: Needs review (shell access, file deletion)
+- 🟢 PASS: Safe pattern confirmed
 
-Check for dangerous patterns. See [checklists/security.md](checklists/security.md) for full list.
+### Structural hardening
+**Actively fixes** these issues (not just reports):
 
-**Critical patterns to grep:**
+**For skills:**
+- Adds "When to use" section if missing (primacy zone)
+- Adds quick reference table if missing (recency zone)
+- Moves buried critical info to appropriate zones
+- Adds related skills section
+- Extracts inline content >50 lines to sub-files
+
+**For agents:**
+- Adds "Core constraints" section if missing
+- Adds "Decision authority" section if missing
+- Adds "Output format" section if missing
+- Adds "When to escalate" section if missing
+
+**For hooks:**
+- Adds bypass mechanism (SKIP_HOOK_[name]=1)
+- Adds timeout if missing
+- Documents network dependencies
+- Adds error handling if missing
+
+**For plugins:**
+- Audits all bundled components
+- Verifies manifest completeness
+- Checks for hidden components
+
+## Hardening workflow
+
+### Step 1: Security scan
 ```bash
+# Critical patterns
 grep -rn "eval\|exec\|subprocess\|os\.system" .
 grep -rn "shutil\.rmtree\|rm -rf" .
 grep -rn "curl\|wget\|requests\." .
 ```
 
-**Output security findings as:**
-- 🔴 CRITICAL: Blocks installation
-- 🟡 WARNING: Needs review
-- 🟢 PASS: Safe pattern confirmed
+If 🔴 CRITICAL found → **STOP. Do not proceed.**
 
-### Phase 2: Optimization analysis
+### Step 2: Identify component type
+Detect type from structure:
+- `SKILL.md` → Skill
+- `AGENT.md` or agent definition → Agent
+- Hook registration in settings.json → Hook
+- `manifest.json` with components → Plugin
 
-Check against Anthropic guidelines. See [checklists/optimization.md](checklists/optimization.md).
-
-**Hard limits:**
-| Element | Limit |
-|---------|-------|
-| SKILL.md body | <500 lines |
-| Name | ≤64 chars |
-| Description | ≤1024 chars |
-| Reference depth | 1 level only |
-
-**Content zone check (Lost in the Middle research):**
-- First 20% (primacy): Should have purpose, triggers, usage
-- Middle 70%: Should have pointers only, not critical details
-- Last 10% (recency): Should have quick reference, related items
-
-### Phase 3: Type-specific review
-
-Apply patterns for the specific component type:
+### Step 3: Apply type-specific hardening
+Load the appropriate pattern file and **apply fixes**:
 - Skills: [patterns/skill.md](patterns/skill.md)
 - Agents: [patterns/agent.md](patterns/agent.md)
 - Hooks: [patterns/hook.md](patterns/hook.md)
 - Plugins: [patterns/plugin.md](patterns/plugin.md)
 
-### Phase 4: Recommendations
+### Step 4: Write fixed version
+**Default behavior:** Write the fixed component, report what changed.
 
-Generate specific recommendations for each violation found.
-
-**CRITICAL: Ask for confirmation before making changes.**
-
-Output format:
 ```markdown
-## Optimization recommendations for [component]
+## Hardened: [component-name]
 
-### Violations found
-1. [Violation]: [specific issue]
-2. [Violation]: [specific issue]
+**Type:** Skill
+**Source:** /path/to/component
 
-### Proposed changes
-1. [Change]: [what will be modified]
-2. [Change]: [what will be modified]
+### Changes made
+1. ✅ Added "When to use" section (primacy zone)
+2. ✅ Added quick reference table (recency zone)
+3. ✅ Extracted 80-line template to patterns/template.md
+4. ✅ Added related skills section
 
-### New structure (if restructuring)
-```
-component/
-├── SKILL.md (X lines → Y lines)
-├── [new-subfile].md
-└── ...
-```
+### Structure (before → after)
+- Lines: 450 → 185
+- Sub-files created: 2
+- Zone compliance: ❌ → ✅
 
-**Proceed with changes?** [Yes / No / Show me more detail]
+### Security
+🟢 PASS: No dangerous patterns found
 ```
 
 ## Output format
 
 ```markdown
-## Audit: [component-name]
+## Hardened: [component-name]
 
-**Type:** [Skill / Agent / Plugin / Hook]
-**Source:** [path or URL]
-**Date:** [date]
+**Type:** [Skill / Agent / Hook / Plugin]
+**Source:** [path]
+**Mode:** [Fix / Audit-only]
 
-### Security scan
-🔴 CRITICAL: [blockers]
+### Security
+🔴 CRITICAL: [blockers - STOP if found]
 🟡 WARNING: [concerns]
-🟢 PASS: [safe patterns]
+🟢 PASS: [confirmations]
 
-### Optimization analysis
-- Lines: [X] (limit: 500)
-- Structure: [assessment]
-- Content zones: [assessment]
+### Structural changes
+[List of fixes applied]
 
-### Recommendation
-✅ SAFE TO INSTALL (no changes needed)
-✅ SAFE TO INSTALL + optimization available
-⚠️ INSTALL WITH CAUTION: [concerns]
-🚫 DO NOT INSTALL: [blockers]
-
-### Optimization available
-[If applicable, list proposed improvements]
+### Verification
+- [ ] Component loads without error
+- [ ] Zone distribution correct (20/70/10)
+- [ ] All sub-files readable
+- [ ] For hooks: bypass mechanism works
 ```
 
 ---
@@ -138,13 +142,22 @@ component/
 
 | Command | Description |
 |---------|-------------|
-| `/skill-auditor path` | Full audit |
-| `/skill-auditor path --security-only` | Security only |
-| `/skill-auditor path --optimize-only` | Optimization only |
-| `/skill-auditor --all` | Batch audit |
+| `/component-hardener path` | Harden (fix + report) |
+| `/component-hardener path --audit-only` | Report without modifying |
+| `/component-hardener --all` | Harden all components |
+| `/component-hardener --batch skill` | Harden all skills |
+
+## Risk levels
+
+| Type | Risk | Priority |
+|------|------|----------|
+| Hooks | **Critical** | Harden first |
+| Agents | High | Harden second |
+| Plugins | High | Harden third |
+| Skills | Medium | Harden last |
 
 ## Related
 
-- [checklists/security.md](checklists/security.md) — Full security patterns
+- [checklists/security.md](checklists/security.md) — Security patterns
 - [checklists/optimization.md](checklists/optimization.md) — Optimization guidelines
-- [patterns/](patterns/) — Type-specific patterns
+- [patterns/](patterns/) — Type-specific transformation patterns

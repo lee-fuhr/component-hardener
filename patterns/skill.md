@@ -120,3 +120,92 @@ When a skill exceeds 500 lines:
 | Nested references | Flatten to one level |
 | No quick reference | Add table at end |
 | Vague description | Add specific trigger keywords |
+
+## Transformation rules
+
+### Missing frontmatter
+
+**Detection:** File doesn't start with `---`
+**Fix:** Insert at line 1 (before all content)
+**Template:**
+```yaml
+---
+name: [derive from filename, lowercase-hyphenated]
+description: [Extract from first paragraph. Third person, WHAT + WHEN. ≤1024 chars]
+---
+```
+
+### Missing "When to use" section
+
+**Detection:** No `## When to use` heading in first 30 lines
+**Fix:** Insert after first heading and purpose statement (primacy zone, ~line 5-10)
+**Template:**
+```markdown
+## When to use
+
+- [Derive from description field - extract trigger scenarios]
+- [Look for action verbs in description]
+- [Identify input types mentioned]
+```
+
+### Missing usage examples
+
+**Detection:** No `**Usage:**` or `## Usage` in first 20 lines
+**Fix:** Insert after `# Title` and one-line purpose, before "When to use"
+**Template:**
+```markdown
+**Usage:**
+- `/[skill-name]` - [basic invocation]
+- `/[skill-name] [arg]` - [with argument if applicable]
+```
+
+### Missing quick reference (recency zone)
+
+**Detection:** No `## Quick reference` in last 20 lines
+**Fix:** Append to end of file (recency zone)
+**Template:**
+```markdown
+## Quick reference
+
+| Command | Description |
+|---------|-------------|
+| `/[skill-name]` | [Primary action] |
+| `/[skill-name] [arg]` | [With argument] |
+```
+
+### Missing related skills section
+
+**Detection:** No `## Related` heading in last 15 lines
+**Fix:** Append after quick reference (recency zone, very end)
+**Template:**
+```markdown
+## Related skills
+
+- [Scan for skills mentioned in body, or leave as TODO]
+```
+
+### First-person description
+
+**Detection:** Description contains "I ", "my ", "I'll", "I can"
+**Fix:** Rewrite description field in frontmatter
+**Transform:**
+- "I help you process PDFs" → "Processes PDF files for text extraction"
+- "I can analyze code" → "Analyzes code for patterns and issues"
+
+### Missing sub-file organization (>500 lines)
+
+**Detection:** File exceeds 500 lines
+**Fix:** Create sub-files and replace inline content with pointers
+**Template for pointers:**
+```markdown
+## [Section name]
+
+[One-line context]. See [[section].md]([section].md) for details.
+```
+
+### Critical info buried in middle
+
+**Detection:** Important content (triggers, constraints, commands) not in first 20% or last 10%
+**Fix:** Extract and relocate
+**Primacy zone (first 20%):** Purpose, triggers, usage, constraints
+**Recency zone (last 10%):** Quick reference, related skills, key commands
