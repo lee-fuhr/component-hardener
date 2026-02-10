@@ -1,16 +1,26 @@
 # skill-auditor
 
-Security audit and optimization for Claude Code skills, agents, plugins, and hooks.
+Normalize components from any source into production-ready parts of a robust system.
 
-> Stop installing sketchy skills. Audit first, optimize second.
+> Other auditors check if it's safe. This one makes it *good*.
 
-## Why this exists
+## The problem
 
-Claude Code's plugin ecosystem is growing fast. Skills, agents, hooks, and plugins can do powerful things—including dangerous things. This skill provides:
+You're pulling skills from GitHub repos, official marketplaces, community collections, plugins with bundled skills, and that one thing someone shared in Discord. They all have different:
+- Quality levels (some are 50 lines, some are 900)
+- Structure (some follow best practices, some don't)
+- Safety profiles (some are careful, some are yolo)
 
-1. **Security scanning** - Detect dangerous patterns before installation
-2. **Optimization analysis** - Ensure components follow Anthropic's best practices
-3. **Type-aware auditing** - Different rules for skills vs agents vs hooks
+Before skill-auditor, you had two choices: blindly install everything, or manually review each component. Neither scales.
+
+## What this does differently
+
+Most auditors stop at "is it safe?" This one goes further:
+
+1. **Security scanning** - Yes, catches dangerous patterns (eval, subprocess, credential access)
+2. **Performance optimization** - Restructures bloated skills to actually perform well
+3. **Multi-source normalization** - Takes components from anywhere and gets them to a consistent, robust standard
+4. **Type-aware rules** - Different standards for skills vs agents vs hooks vs plugins
 
 ## Research backing
 
